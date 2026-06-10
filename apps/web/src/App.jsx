@@ -13,8 +13,8 @@ const App = () => {
     setChargement(true);
     setErreur(null);
     try {
-      const reponse = await fetch("/evenements-faux.json") ;
-      //const reponse = await fetch("/evenements.json");
+      //const reponse = await fetch("/evenements-faux.json") ;
+      const reponse = await fetch("/evenements.json");
       if (!reponse.ok) {
         throw new Error(`Erreur HTTP ${reponse.status}`);
       }
@@ -35,6 +35,14 @@ const App = () => {
   const evenementsFiltres = evenements.filter(ev =>
     ev.titre.toLowerCase().includes(recherche.toLowerCase())
   );
+  // Nouveau : synchroniser le titre de l'onglet
+useEffect(() => {
+  if (evenementsFiltres.length > 0) {
+    document.title = `(${evenementsFiltres.length}) SenEvent`;
+  } else {
+    document.title = "SenEvent";
+  }
+}, [evenementsFiltres.length]);
 
   return (
     <div className={styles.container}>
