@@ -44,15 +44,7 @@ const App = () => {
     }
   }, [evenementsFiltres.length]);
 
-  // Bonus : mesurer le temps passé sur la page
-useEffect(() => {
-  const debut = Date.now();
-
-  return () => {
-    const duree = Date.now() - debut;
-    console.log("Temps sur la page :", duree, "ms");
-  };
-}, []);
+  
 
   return (
     <div className={styles.container}>
