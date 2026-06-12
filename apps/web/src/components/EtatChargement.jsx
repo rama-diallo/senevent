@@ -19,6 +19,7 @@ const EtatChargement = ({ chargement, erreur, onReessayer }) => {
   }
 
   return null;
+  
 };
 
 export default EtatChargement;
