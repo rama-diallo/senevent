@@ -4,6 +4,7 @@ import Accueil from "./pages/Accueil";
 import NouvelEvenement from "./pages/NouvelEvenement";
 import Detail from "./pages/Detail";
 import NavBar from "./components/NavBar";
+import NonTrouvee from "./pages/NonTrouvee";
 
 const App = () => {
   const [evenements, setEvenements] = useState([]);
@@ -59,6 +60,7 @@ const App = () => {
           path="/evenement/:id"
           element={<Detail evenements={evenements} />}
         />
+        <Route path="*" element={<NonTrouvee />} />
       </Routes>
     </BrowserRouter>
   );
