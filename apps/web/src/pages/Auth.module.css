@@ -1,0 +1,72 @@
+.form {
+  max-width: 400px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #f7f7f7;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form h2 {
+  color: #1a3a5c;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  color: #1a3a5c;
+}
+
+.champ input {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.champ input:focus {
+  outline: none;
+  border-color: #ea7d2b;
+}
+
+.erreur {
+  color: #cc1f1f;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.bouton {
+  background: #ea7d2b;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.bouton:hover {
+  background: #d46a1a;
+}
+
+.bouton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.basculer {
+  background: transparent;
+  border: none;
+  color: #1a3a5c;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.3rem;
+}

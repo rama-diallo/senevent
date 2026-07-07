@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { supabase } from "./lib/supabase";
 import Accueil from "./pages/Accueil";
 import NouvelEvenement from "./pages/NouvelEvenement";
 import Detail from "./pages/Detail";
+import Auth from "./pages/Auth";
 import NavBar from "./components/NavBar";
 import NonTrouvee from "./pages/NonTrouvee";
 
@@ -10,6 +12,21 @@ const App = () => {
   const [evenements, setEvenements] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+    });
+
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        setSession(newSession);
+      }
+    );
+
+    return () => subscription.subscription.unsubscribe();
+  }, []);
 
   const charger = async () => {
     setChargement(true);
@@ -39,7 +56,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <NavBar />
+      <NavBar session={session} />
       <Routes>
         <Route
           path="/"
@@ -60,6 +77,7 @@ const App = () => {
           path="/evenement/:id"
           element={<Detail evenements={evenements} />}
         />
+        <Route path="/auth" element={<Auth />} />
         <Route path="*" element={<NonTrouvee />} />
       </Routes>
     </BrowserRouter>
