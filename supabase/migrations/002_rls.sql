@@ -43,3 +43,12 @@ with check (utilisateur_id = auth.uid());
 create policy "inscriptions_delete_self"
 on public.inscriptions for delete to authenticated
 using (utilisateur_id = auth.uid());
+
+-- Grants necessaires en plus de RLS (corrige erreur 42501 permission denied)
+grant usage on schema public to anon, authenticated;
+grant select on public.evenements to anon, authenticated;
+grant select on public.profiles to anon, authenticated;
+grant select on public.inscriptions to anon, authenticated;
+grant insert, update, delete on public.evenements to authenticated;
+grant insert, update on public.profiles to authenticated;
+grant insert, delete on public.inscriptions to authenticated;
