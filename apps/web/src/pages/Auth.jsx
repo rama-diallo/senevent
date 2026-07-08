@@ -18,17 +18,16 @@ const Auth = () => {
     setEnCours(true);
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password: motDePasse,
+          options: {
+            data: { nom },
+          },
         });
         if (error) throw error;
-        if (data.user) {
-          const { error: e2 } = await supabase
-            .from("profiles")
-            .insert({ id: data.user.id, nom, role: "PUBLIC" });
-          if (e2) throw e2;
-        }
+        // Plus besoin d'inserer manuellement dans profiles :
+        // le trigger on_auth_user_created s'en charge automatiquement.
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
