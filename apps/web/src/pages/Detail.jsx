@@ -58,6 +58,8 @@ const Detail = ({ evenements, session, onSupprime })  => {
         <dt>Lieu</dt><dd>{evenement.lieu_nom}</dd>
         <dt>Date</dt><dd>{date}</dd>
         <dt>Prix</dt><dd className={styles.prix}>{prix}</dd>
+        <dt>Organisé par</dt>
+        <dd>{evenement.profiles ? evenement.profiles.nom : "Equipe SenEvent"}</dd>
       </dl>
 
       <BoutonInscription evenementId={evenement.id} session={session} />
