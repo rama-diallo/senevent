@@ -73,8 +73,8 @@ const App = () => {
            />
         <Route
            path="/evenement/:id"
-            element={<Detail evenements={evenements} session={session} />}
-           />
+           element={<Detail evenements={evenements} session={session} onSupprime={charger} />}
+             />
         <Route path="/auth" element={<Auth />} />
         <Route path="*" element={<NonTrouvee />} />
       </Routes>
