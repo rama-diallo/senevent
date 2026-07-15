@@ -51,9 +51,6 @@ const App = () => {
     charger();
   }, []);
 
-  const ajouterEvenement = (nouvel) => {
-    setEvenements((precedents) => [nouvel, ...precedents]);
-  };
 
   return (
     <BrowserRouter>
@@ -72,12 +69,12 @@ const App = () => {
         />
         <Route
           path="/nouveau"
-          element={<NouvelEvenement onAjouter={ajouterEvenement} />}
-        />
+           element={<NouvelEvenement onAjoutReussi={charger} />}
+           />
         <Route
-          path="/evenement/:id"
-          element={<Detail evenements={evenements} />}
-        />
+           path="/evenement/:id"
+            element={<Detail evenements={evenements} session={session} />}
+           />
         <Route path="/auth" element={<Auth />} />
         <Route path="*" element={<NonTrouvee />} />
       </Routes>
