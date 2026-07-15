@@ -60,3 +60,14 @@
   color: #ea7d2b;
   font-weight: bold;
 }
+.supprimer {
+  background: #b03a3a;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+  display: block;
+}
