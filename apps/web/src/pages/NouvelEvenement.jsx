@@ -9,8 +9,9 @@ const NouvelEvenement = ({ onAjoutReussi }) => {
   const [lieu, setLieu] = useState("");
   const [prix, setPrix] = useState(0);
   const [dateDebut, setDateDebut] = useState(
-new Date().toISOString().slice(0, 16)
-);
+    new Date().toISOString().slice(0, 16)
+  );
+  const [fichier, setFichier] = useState(null);
   const [erreurs, setErreurs] = useState({});
   const [erreurServeur, setErreurServeur] = useState(null);
   const [enCours, setEnCours] = useState(false);
@@ -42,7 +43,6 @@ new Date().toISOString().slice(0, 16)
 
     setEnCours(true);
 
-    
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -53,13 +53,36 @@ new Date().toISOString().slice(0, 16)
       return;
     }
 
+    // Image par défaut (placeholder), remplacée si un fichier est choisi
+    let image_url = `https://placehold.co/400x250/1a3a5c/fff?text=${categorie}`;
+
+    if (fichier) {
+      const chemin = `${user.id}/${Date.now()}_${fichier.name}`;
+
+      const { error: erreurUpload } = await supabase.storage
+        .from("affiches")
+        .upload(chemin, fichier);
+
+      if (erreurUpload) {
+        setErreurServeur(erreurUpload.message);
+        setEnCours(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("affiches")
+        .getPublicUrl(chemin);
+
+      image_url = urlData.publicUrl;
+    }
+
     const { error } = await supabase.from("evenements").insert({
       titre: titre.trim(),
       categorie,
       lieu_nom: lieu.trim(),
       prix: Number(prix),
       date_debut: new Date(dateDebut).toISOString(),
-      image_url: `https://placehold.co/400x250/1a3a5c/fff?text=${categorie}`,
+      image_url,
       organisateur_id: user.id,
     });
 
@@ -68,7 +91,7 @@ new Date().toISOString().slice(0, 16)
     if (error) {
       setErreurServeur(error.message);
     } else {
-      onAjoutReussi(); 
+      onAjoutReussi();
       navigate("/");
     }
   };
@@ -109,14 +132,14 @@ new Date().toISOString().slice(0, 16)
       </label>
 
       <label className={styles.champ}>
-       Date et heure de l'événement
-       <input
+        Date et heure de l'événement
+        <input
           type="datetime-local"
-           value={dateDebut}
-           onChange={(e) => setDateDebut(e.target.value)}
-           required
-          />
-        </label>
+          value={dateDebut}
+          onChange={(e) => setDateDebut(e.target.value)}
+          required
+        />
+      </label>
 
       <label className={styles.champ}>
         Prix (FCFA, 0 pour gratuit)
@@ -127,6 +150,15 @@ new Date().toISOString().slice(0, 16)
           onChange={(e) => setPrix(e.target.value)}
         />
         {erreurs.prix && <span className={styles.erreur}>{erreurs.prix}</span>}
+      </label>
+
+      <label className={styles.champ}>
+        Affiche de l'événement (optionnel)
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFichier(e.target.files[0])}
+        />
       </label>
 
       {erreurServeur && <p className={styles.erreur}>Erreur : {erreurServeur}</p>}
