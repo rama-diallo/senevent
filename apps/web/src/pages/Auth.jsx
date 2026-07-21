@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabase";
+import { sInscrire, seConnecter } from "@senevent/shared";
 import styles from "./Auth.module.css";
 
 const Auth = () => {
@@ -18,22 +18,11 @@ const Auth = () => {
     setEnCours(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password: motDePasse,
-          options: {
-            data: { nom },
-          },
-        });
-        if (error) throw error;
+        await sInscrire(email, motDePasse, nom);
         // Plus besoin d'inserer manuellement dans profiles :
         // le trigger on_auth_user_created s'en charge automatiquement.
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password: motDePasse,
-        });
-        if (error) throw error;
+        await seConnecter(email, motDePasse);
       }
       navigate("/");
     } catch (e) {

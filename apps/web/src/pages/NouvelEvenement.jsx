@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabase";
+import { getSupabase, creerEvenement } from "@senevent/shared";
 import styles from "./NouvelEvenement.module.css";
 
 const NouvelEvenement = ({ onAjoutReussi }) => {
@@ -45,7 +45,7 @@ const NouvelEvenement = ({ onAjoutReussi }) => {
 
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await getSupabase().auth.getUser();
 
     if (!user) {
       setErreurServeur("Vous devez être connecté.");
@@ -59,7 +59,7 @@ const NouvelEvenement = ({ onAjoutReussi }) => {
     if (fichier) {
       const chemin = `${user.id}/${Date.now()}_${fichier.name}`;
 
-      const { error: erreurUpload } = await supabase.storage
+      const { error: erreurUpload } = await getSupabase().storage
         .from("affiches")
         .upload(chemin, fichier);
 
@@ -69,30 +69,29 @@ const NouvelEvenement = ({ onAjoutReussi }) => {
         return;
       }
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = getSupabase().storage
         .from("affiches")
         .getPublicUrl(chemin);
 
       image_url = urlData.publicUrl;
     }
 
-    const { error } = await supabase.from("evenements").insert({
-      titre: titre.trim(),
-      categorie,
-      lieu_nom: lieu.trim(),
-      prix: Number(prix),
-      date_debut: new Date(dateDebut).toISOString(),
-      image_url,
-      organisateur_id: user.id,
-    });
-
-    setEnCours(false);
-
-    if (error) {
-      setErreurServeur(error.message);
-    } else {
+    try {
+      await creerEvenement({
+        titre: titre.trim(),
+        categorie,
+        lieu_nom: lieu.trim(),
+        prix: Number(prix),
+        date_debut: new Date(dateDebut).toISOString(),
+        image_url,
+        organisateur_id: user.id,
+      });
       onAjoutReussi();
       navigate("/");
+    } catch (error) {
+      setErreurServeur(error.message);
+    } finally {
+      setEnCours(false);
     }
   };
 
