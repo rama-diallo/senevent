@@ -18,7 +18,7 @@ const Auth = () => {
     setEnCours(true);
     try {
       if (mode === "signup") {
-        await sInscrire(email, motDePasse, nom);
+        await sInscrire(email, motDePasse);
         // Plus besoin d'inserer manuellement dans profiles :
         // le trigger on_auth_user_created s'en charge automatiquement.
       } else {
