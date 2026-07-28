@@ -13,6 +13,7 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.titre}>SenEvent Mobile</Text>
       <Text style={styles.sousTitre}>Evenements a Dakar</Text>
+      <Text style={styles.auteur}>Realise par Ramatoulaye Diallo</Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -34,5 +35,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#ea7d2b",
     marginTop: 8,
+  },
+  auteur: {
+    fontSize: 12,
+    color: "#999",
+    marginTop: 16,
   },
 });
