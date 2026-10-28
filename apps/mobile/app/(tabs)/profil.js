@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
-  View, Text, TextInput, Pressable, StyleSheet,
+  View, Text, TextInput, Pressable, StyleSheet, FlatList,
   KeyboardAvoidingView, Platform, ActivityIndicator,
 } from "react-native";
-import { seConnecter, sInscrire, seDeconnecter } from "@senevent/shared";
+import { useFocusEffect, useRouter } from "expo-router";
+import {
+  seConnecter, sInscrire, seDeconnecter, mesInscriptions,
+} from "@senevent/shared";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Profil() {
@@ -16,22 +19,85 @@ export default function Profil() {
     );
   }
 
-  // Si connecte : afficher l'email + deconnexion
+  // Si connecte : email + inscriptions + deconnexion
   if (session) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.titre}>Mon profil</Text>
-        <Text style={styles.email}>{session.user.email}</Text>
-        <Pressable style={styles.boutonDeco} onPress={() => seDeconnecter()}>
-          <Text style={styles.boutonTexte}>Se deconnecter</Text>
-        </Pressable>
-        <Text style={styles.auteur}>Realise par Ramatoulaye Diallo</Text>
-      </View>
-    );
+    return <ProfilConnecte session={session} />;
   }
 
   // Sinon : le formulaire de connexion / inscription
   return <FormulaireAuth />;
+}
+
+function ProfilConnecte({ session }) {
+  const router = useRouter();
+  const [inscriptions, setInscriptions] = useState([]);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState(null);
+
+  // Recharger a chaque fois que l'onglet redevient visible
+  useFocusEffect(
+    useCallback(() => {
+      const charger = async () => {
+        try {
+          const data = await mesInscriptions(session.user.id);
+          setInscriptions(data);
+          setErreur(null);
+        } catch (e) {
+          setErreur(e.message);
+        } finally {
+          setChargement(false);
+        }
+      };
+      charger();
+    }, [session.user.id])
+  );
+
+  const formaterDate = (iso) =>
+    iso ? new Date(iso).toLocaleString("fr-FR") : "Date non precisee";
+
+  return (
+    <View style={styles.containerHaut}>
+      <Text style={styles.titre}>Mon profil</Text>
+      <Text style={styles.email}>{session.user.email}</Text>
+
+      <Text style={styles.sousTitre}>Mes inscriptions</Text>
+
+      {chargement ? (
+        <ActivityIndicator color="#1a3a5c" style={styles.marge} />
+      ) : erreur ? (
+        <Text style={styles.erreur}>{erreur}</Text>
+      ) : (
+        <FlatList
+          style={styles.liste}
+          data={inscriptions}
+          keyExtractor={(item) => item.evenement_id.toString()}
+          ListEmptyComponent={
+            <Text style={styles.vide}>
+              Vous n'etes inscrite a aucun evenement.
+            </Text>
+          }
+          renderItem={({ item }) => (
+            <Pressable
+              style={styles.carte}
+              onPress={() => router.push(`/evenement/${item.evenement_id}`)}
+            >
+              <Text style={styles.carteTitre}>
+                {item.evenements?.titre ?? "Evenement supprime"}
+              </Text>
+              <Text style={styles.carteDate}>
+                {formaterDate(item.evenements?.date_debut)}
+              </Text>
+            </Pressable>
+          )}
+        />
+      )}
+
+      <Pressable style={styles.boutonDeco} onPress={() => seDeconnecter()}>
+        <Text style={styles.boutonTexte}>Se deconnecter</Text>
+      </Pressable>
+      <Text style={styles.auteur}>Realise par Ramatoulaye Diallo</Text>
+    </View>
+  );
 }
 
 function FormulaireAuth() {
@@ -115,12 +181,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#f0f4f8",
   },
+  containerHaut: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: "#f0f4f8",
+  },
   centre: { marginTop: 40 },
+  marge: { marginVertical: 20 },
   titre: {
     fontSize: 22,
     fontWeight: "bold",
     color: "#1a3a5c",
-    marginBottom: 20,
+    marginBottom: 12,
     textAlign: "center",
   },
   email: {
@@ -128,6 +200,29 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
     marginBottom: 20,
+  },
+  sousTitre: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1a3a5c",
+    marginBottom: 8,
+  },
+  liste: { flexGrow: 0, maxHeight: 320, marginBottom: 20 },
+  carte: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: "#ea7d2b",
+  },
+  carteTitre: { fontSize: 15, fontWeight: "600", color: "#1a3a5c" },
+  carteDate: { fontSize: 13, color: "#666", marginTop: 2 },
+  vide: {
+    color: "#666",
+    fontStyle: "italic",
+    textAlign: "center",
+    marginVertical: 16,
   },
   input: {
     backgroundColor: "#fff",

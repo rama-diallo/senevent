@@ -30,3 +30,22 @@ export async function desinscrire(evenementId: number, utilisateurId: string) {
 
   if (error) throw error;
 }
+
+// Une inscription avec les infos de l'evenement correspondant.
+export interface MonInscription {
+  evenement_id: number;
+  evenements: { titre: string; date_debut: string } | null;
+}
+
+// Liste les evenements auxquels un utilisateur est inscrit.
+export async function mesInscriptions(
+  utilisateurId: string
+): Promise<MonInscription[]> {
+  const { data, error } = await getSupabase()
+    .from("inscriptions")
+    .select("evenement_id, evenements(titre, date_debut)")
+    .eq("utilisateur_id", utilisateurId);
+
+  if (error) throw error;
+  return (data ?? []) as unknown as MonInscription[];
+}
