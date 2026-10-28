@@ -9,6 +9,25 @@ import { useAuth } from "../context/AuthContext";
 
 const CATEGORIES = ["concert", "expo", "conference", "atelier", "soutenance"];
 
+// Convertit "JJ/MM/AAAA HH:MM" en date ISO. Retourne null si invalide.
+function lireDate(texte) {
+  const m = texte.trim().match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/);
+  if (!m) return null;
+  const [, jj, mm, aaaa, hh, min] = m.map(Number);
+  const d = new Date(aaaa, mm - 1, jj, hh, min);
+  // Refuse les dates impossibles (ex : 31/02/2026)
+  if (
+    d.getFullYear() !== aaaa ||
+    d.getMonth() !== mm - 1 ||
+    d.getDate() !== jj ||
+    d.getHours() !== hh ||
+    d.getMinutes() !== min
+  ) {
+    return null;
+  }
+  return d.toISOString();
+}
+
 export default function Nouveau() {
   const { session } = useAuth();
   const router = useRouter();
@@ -16,6 +35,7 @@ export default function Nouveau() {
   const [titre, setTitre] = useState("");
   const [categorie, setCategorie] = useState("concert");
   const [lieu, setLieu] = useState("");
+  const [dateTexte, setDateTexte] = useState("");
   const [prix, setPrix] = useState("");
   const [erreur, setErreur] = useState(null);
   const [enCours, setEnCours] = useState(false);
@@ -24,6 +44,11 @@ export default function Nouveau() {
     setErreur(null);
     if (titre.trim().length < 3) {
       setErreur("Le titre doit faire au moins 3 caracteres.");
+      return;
+    }
+    const dateIso = lireDate(dateTexte);
+    if (!dateIso) {
+      setErreur("Date invalide. Format attendu : JJ/MM/AAAA HH:MM (ex : 25/12/2026 20:30).");
       return;
     }
     if (!session) {
@@ -36,7 +61,7 @@ export default function Nouveau() {
         titre: titre.trim(),
         categorie,
         lieu_nom: lieu.trim(),
-        date_debut: new Date().toISOString(),
+        date_debut: dateIso,
         prix: Number(prix) || 0,
         organisateur_id: session.user.id,
       });
@@ -74,6 +99,15 @@ export default function Nouveau() {
 
         <Text style={styles.label}>Lieu</Text>
         <TextInput style={styles.input} value={lieu} onChangeText={setLieu} />
+
+        <Text style={styles.label}>Date et heure (JJ/MM/AAAA HH:MM)</Text>
+        <TextInput
+          style={styles.input}
+          value={dateTexte}
+          onChangeText={setDateTexte}
+          placeholder="25/12/2026 20:30"
+          keyboardType="numbers-and-punctuation"
+        />
 
         <Text style={styles.label}>Prix (FCFA, 0 = gratuit)</Text>
         <TextInput
