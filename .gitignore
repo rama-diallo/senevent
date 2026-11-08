@@ -5,3 +5,8 @@ dist/
 *.log
 supabase/.temp/
 apps/mobile/.env
+.expo/
+
+apps/mobile/.expo/
+apps/mobile/.expo
+
